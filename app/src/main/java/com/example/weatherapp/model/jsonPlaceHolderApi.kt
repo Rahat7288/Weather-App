@@ -2,6 +2,8 @@ package com.example.weatherapp.model
 
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -16,5 +18,16 @@ interface  JsonPlaceHolderApi {
 
     @POST("posts")
     fun createPost(@Body post: Post): Call<Post>
+
+//    another way of post request with the help of
+
+    @FormUrlEncoded
+    @POST("posts")
+    fun createPost(
+        @Field("userId") userId: Int,
+        @Field("title") title: String,
+        @Field("body") text: String,
+
+    ): Call<Post>
 
 }
