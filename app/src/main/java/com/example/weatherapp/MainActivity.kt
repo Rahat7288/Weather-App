@@ -45,13 +45,16 @@ class MainActivity : AppCompatActivity() {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
-       getPosts(retrofit)
+        jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi::class.java)
+
+//       getPosts(retrofit)
 //        getComments(retrofit)
+        createPost()
 
 //        =========POST request with retrofit ends ====================
     }
-    private fun getPosts(retrofit: Retrofit) {
-        jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi::class.java)
+    private fun getPosts() {
+//        jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi::class.java)
 
         val call = jsonPlaceHolderApi.getPost(2, "id", "desc")
 
@@ -85,8 +88,8 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun getComments(retrofit: Retrofit){
-        jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi::class.java)
+    private fun getComments(){
+//        jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi::class.java)
 
         val call = jsonPlaceHolderApi.getComments(4)
 
@@ -113,6 +116,33 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<MutableList<Comments>>, t: Throwable) {
+                Toast.makeText(this@MainActivity, "Error: ${t.toString()}", Toast.LENGTH_SHORT).show()
+            }
+
+        })
+    }
+
+    private fun createPost(){
+//        jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi::class.java)
+        val post = Post(userId = 20, "new title","next Text")
+        val call = jsonPlaceHolderApi.createPost(post)
+
+        call.enqueue(object : Callback<Post>{
+            override fun onResponse(call: Call<Post>, response: Response<Post>) {
+                if(response.isSuccessful){
+                    var content = ""
+                    content += "Code: " + response.code() + "\n"
+                    content += "ID: " + "${post.id}" + "\n"
+                    content += "User ID: " + "${post.userId}" + "\n"
+                    content += "Title: " + post.title + "\n"
+                    content += "Body Text: " + post.bodyText + "\n\n"
+                    textViewResult.append(content)
+                }else{
+                    textViewResult.text = response.code().toString()
+                }
+            }
+
+            override fun onFailure(call: Call<Post>, t: Throwable) {
                 Toast.makeText(this@MainActivity, "Error: ${t.toString()}", Toast.LENGTH_SHORT).show()
             }
 
