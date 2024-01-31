@@ -2,12 +2,11 @@ package com.example.weatherapp
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
+import com.example.weatherapp.model.Comments
 import com.example.weatherapp.model.JsonPlaceHolderApi
 import com.example.weatherapp.model.Post
-import com.google.gson.Gson
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -17,6 +16,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 class MainActivity : AppCompatActivity() {
 
     private lateinit var textViewResult: TextView
+    private lateinit var jsonPlaceHolderApi: JsonPlaceHolderApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -35,6 +35,9 @@ class MainActivity : AppCompatActivity() {
 
 //        =============working with Api============
 
+
+//        =========POST request with retrofit===============
+
         textViewResult = findViewById(R.id.text_view_result)
 
         val retrofit = Retrofit.Builder()
@@ -42,9 +45,15 @@ class MainActivity : AppCompatActivity() {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
-        val jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi::class.java)
+       getPosts(retrofit)
+//        getComments(retrofit)
 
-        val call = jsonPlaceHolderApi.getPost()
+//        =========POST request with retrofit ends ====================
+    }
+    private fun getPosts(retrofit: Retrofit) {
+        jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi::class.java)
+
+        val call = jsonPlaceHolderApi.getPost(2, "id", "desc")
 
         call.enqueue(object : Callback<MutableList<Post>>{
             override fun onResponse(
@@ -70,6 +79,40 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<MutableList<Post>>, t: Throwable) {
+                Toast.makeText(this@MainActivity, "Error: ${t.toString()}", Toast.LENGTH_SHORT).show()
+            }
+
+        })
+    }
+
+    private fun getComments(retrofit: Retrofit){
+        jsonPlaceHolderApi = retrofit.create(JsonPlaceHolderApi::class.java)
+
+        val call = jsonPlaceHolderApi.getComments(4)
+
+        call.enqueue(object : Callback<MutableList<Comments>>{
+            override fun onResponse(
+                call: Call<MutableList<Comments>>,
+                response: Response<MutableList<Comments>>
+            ) {
+                if(response.isSuccessful){
+                    val comments = response.body()
+                    if(comments != null){
+                        for(comment in comments){
+                            var content = ""
+                            content += "ID: " + comment.id + "\n"
+                            content += "Post Id" + comment.postId + "\n"
+                            content += "Name" + comment.name + "\n"
+                            content += "Email" + comment.emil + "\n"
+                            content += "Text" + comment.text + "\n\n"
+
+                            textViewResult.append(content)
+                        }
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<MutableList<Comments>>, t: Throwable) {
                 Toast.makeText(this@MainActivity, "Error: ${t.toString()}", Toast.LENGTH_SHORT).show()
             }
 
