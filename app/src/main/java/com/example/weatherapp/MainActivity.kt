@@ -49,7 +49,8 @@ class MainActivity : AppCompatActivity() {
 
 //       getPosts(retrofit)
 //        getComments(retrofit)
-        createPost()
+//        createPost()
+        updatepost()
 
 //        =========POST request with retrofit ends ====================
     }
@@ -148,4 +149,49 @@ class MainActivity : AppCompatActivity() {
 
         })
     }
+
+    private fun updatepost(){
+        val post = Post(25, null, "how are your?")
+        val call = jsonPlaceHolderApi.putPost(5, post)
+
+        call.enqueue(object : Callback<Post>{
+            override fun onResponse(call: Call<Post>, response: Response<Post>) {
+                if(response.isSuccessful){
+                    var content = ""
+                    content += "Code: " + response.code() + "\n"
+                    content += "ID: " + "${post.id}" + "\n"
+                    content += "User ID: " + "${post.userId}" + "\n"
+                    content += "Title: " + post.title + "\n"
+                    content += "Body Text: " + post.bodyText + "\n\n"
+                    textViewResult.append(content)
+                }else{
+                    textViewResult.text = response.code().toString()
+                }
+            }
+
+            override fun onFailure(call: Call<Post>, t: Throwable) {
+                Toast.makeText(this@MainActivity, "Error: ${t.toString()}", Toast.LENGTH_SHORT).show()
+            }
+
+        })
+    }
+
+    private fun deletePost(){
+        val call = jsonPlaceHolderApi.deletePost(25)
+        call.enqueue(object : Callback<Unit>{
+            override fun onResponse(call: Call<Unit>, response: Response<Unit>) {
+                if (response.isSuccessful){
+                    textViewResult.text = response.code().toString()
+                }
+            }
+
+            override fun onFailure(call: Call<Unit>, t: Throwable) {
+                Toast.makeText(this@MainActivity, "Error: ${t.toString()}", Toast.LENGTH_SHORT).show()
+            }
+
+        })
+    }
+
+
+
 }
